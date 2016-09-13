@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="  crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>Tracker</h1>
+    <section class="container">
+        <table class="table">
+            <thead>
+                <th>Task</th>
+                <th>Time spent</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </thead>
+            <tr th:each="task : ${tasks}">
+                <td><span th:text="${task.name}"></span></td>
+                <td><span th:attr="data-active=${task.active}, data-elapsed=${task.elapsedTime}" th:text="${task.elapsedTimeAsString}"></span></td>
+                <td><a th:href="@{/task/activate(name=${task.name})}">Activate</a></td>
+                <td><a th:href="@{/task/deactivate(name=${task.name})}">Deactivate</a></td>
+                <td><a th:href="@{/task/remove(name=${task.name})}">Remove</a></td>
+            </tr>
+        </table>
+
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newTaskForm">
+            New Task
+        </button>
+
+        <div class="modal fade" id="newTaskForm" tabindex="-1" role="dialog" aria-labelledby="New task">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Create new task</h4>
+                    </div>
+                    <form th:action="@{/task}" th:object="${newTask}" method="post">
+                        <div class="modal-body">
+                            <label for="name">Task name: </label>
+                            <input type="text" th:field="*{name}" id="name"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <input type="submit" class="btn btn-primary" value="Save changes"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        var elapsed = 0;
+        var second = 1000;
+
+        $(document).ready(function(){
+            var elapsedAsString = $('*[data-active="true"]').data('elapsed');
+            elapsed = parseInt(elapsedAsString);
+            setTimeout(updateElapsed, second);
+        });
+
+        var updateElapsed = function(){
+            setTimeout(updateElapsed, second);
+            elapsed += second;
+            printElapsed();
+        };
+
+        var printElapsed = function(){
+            var sec = Math.floor(elapsed / 1000) % 60;
+            var min = Math.floor(sec / 60) % 60;
+            var hours = Math.floor(min / 60);
+            var elapsedAsString = hours + " h " + min + " min " + sec + " s";
+            $('*[data-active="true"]').text(elapsedAsString);
+        };
+    </script>
+</body>
+</html>
